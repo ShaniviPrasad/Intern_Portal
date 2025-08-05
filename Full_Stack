@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intern Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.4) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.4) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.4) 0%, transparent 50%),
+                linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%);
+            min-height: 100vh;
+            color: #fff;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="25" r="0.5" fill="rgba(255,255,255,0.08)"/><circle cx="50" cy="50" r="1.5" fill="rgba(255,255,255,0.05)"/><circle cx="25" cy="75" r="0.8" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1.2" fill="rgba(255,255,255,0.07)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg at 50% 50%, 
+                rgba(120, 119, 198, 0.15) 0deg, 
+                transparent 60deg, 
+                rgba(255, 119, 198, 0.1) 120deg, 
+                transparent 180deg, 
+                rgba(120, 219, 255, 0.15) 240deg, 
+                transparent 300deg, 
+                rgba(120, 119, 198, 0.1) 360deg);
+            animation: rotate 20s linear infinite;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .auth-container {
+            background: rgba(20, 20, 20, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            box-shadow: 
+                0 20px 40px rgba(0,0,0,0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            max-width: 400px;
+            margin: 0 auto;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        .dashboard {
+            display: none;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .dashboard.active {
+            display: block;
+        }
+
+        .auth-tabs {
+            display: flex;
+            background: rgba(40, 40, 40, 0.8);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: #fff;
+        }
+
+        .tab.active {
+            background: rgba(20, 20, 20, 0.9);
+            color: #64ffda;
+        }
+
+        .auth-form {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            background: rgba(30, 30, 30, 0.8);
+            color: #fff;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #64ffda;
+        }
+
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #64ffda, #00bcd4);
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(20, 20, 20, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 
+                0 10px 30px rgba(0,0,0,0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h3 {
+            color: #fff;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #64ffda;
+            margin: 10px 0;
+        }
+
+        .referral-code {
+            background: rgba(30, 30, 30, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            text-align: center;
+            border: 2px dashed #64ffda;
+            margin: 15px 0;
+            color: #64ffda;
+        }
+
+        .rewards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .reward-item {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .reward-item::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s ease;
+        }
+
+        .reward-item:hover::before {
+            animation: shine 1s ease-in-out;
+        }
+
+        .reward-item.locked {
+            background: #ccc;
+            color: #666;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(30, 30, 30, 0.8);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .leaderboard-item:hover {
+            background: rgba(40, 40, 40, 0.8);
+            transform: translateX(5px);
+        }
+
+        .rank {
+            font-weight: bold;
+            color: #64ffda;
+            font-size: 1.2rem;
+        }
+
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .floating-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .shape:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+            background: linear-gradient(135deg, rgba(255, 119, 198, 0.3), rgba(120, 119, 198, 0.3));
+        }
+
+        .shape:nth-child(2) {
+            width: 120px;
+            height: 120px;
+            top: 60%;
+            left: 80%;
+            animation-delay: -2s;
+            background: linear-gradient(135deg, rgba(120, 219, 255, 0.3), rgba(120, 119, 198, 0.3));
+        }
+
+        .shape:nth-child(3) {
+            width: 60px;
+            height: 60px;
+            top: 80%;
+            left: 20%;
+            animation-delay: -4s;
+            background: linear-gradient(135deg, rgba(255, 119, 198, 0.4), rgba(120, 219, 255, 0.3));
+        }
+
+        .shape:nth-child(4) {
+            width: 100px;
+            height: 100px;
+            top: 10%;
+            left: 70%;
+            animation-delay: -1s;
+            background: linear-gradient(135deg, rgba(120, 219, 255, 0.2), rgba(255, 119, 198, 0.3));
+        }
+
+        .shape:nth-child(5) {
+            width: 150px;
+            height: 150px;
+            top: 40%;
+            left: 5%;
+            animation-delay: -3s;
+            background: linear-gradient(135deg, rgba(120, 119, 198, 0.2), rgba(120, 219, 255, 0.4));
+        }
+
+        @keyframes rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+            33% {
+                transform: translateY(-30px) rotate(120deg);
+            }
+            66% {
+                transform: translateY(15px) rotate(240deg);
+            }
+        }
+
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 5px;
+        }
+
+        .nav-tab {
+            padding: 12px 24px;
+            margin: 0 5px;
+            background: transparent;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tab.active {
+            background: rgba(20, 20, 20, 0.9);
+            color: #64ffda;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .rewards-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Floating Shapes -->
+        <div class="floating-shapes">
+            <div class="shape"></div>
+            <div class="shape"></div>
+            <div class="shape"></div>
+            <div class="shape"></div>
+            <div class="shape"></div>
+        </div>
+
+        <!-- Floating Particles -->
+        <div class="particles" id="particles"></div>
+
+        <div class="header">
+            <h1>🚀 Intern Portal</h1>
+            <p>Track your progress and unlock amazing rewards!</p>
+        </div>
+
+        <button class="logout-btn" onclick="logout()" style="display: none;" id="logoutBtn">Logout</button>
+
+        <!-- Authentication Container -->
+        <div class="auth-container" id="authContainer">
+            <div class="auth-tabs">
+                <button class="tab active" onclick="switchTab('login')">Login</button>
+                <button class="tab" onclick="switchTab('signup')">Sign Up</button>
+            </div>
+
+            <div class="auth-form" id="loginForm">
+                <h2 style="text-align: center; margin-bottom: 20px; color: #64ffda;">Welcome Back!</h2>
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" placeholder="Enter your email" value="john.doe@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" placeholder="Enter your password" value="password123">
+                </div>
+                <button class="btn" onclick="login()">Login</button>
+            </div>
+
+            <div class="auth-form" id="signupForm" style="display: none;">
+                <h2 style="text-align: center; margin-bottom: 20px; color: #64ffda;">Join Us!</h2>
+                <div class="form-group">
+                    <label for="signupName">Full Name</label>
+                    <input type="text" id="signupName" placeholder="Enter your full name">
+                </div>
+                <div class="form-group">
+                    <label for="signupEmail">Email</label>
+                    <input type="email" id="signupEmail" placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="signupPassword">Password</label>
+                    <input type="password" id="signupPassword" placeholder="Create a password">
+                </div>
+                <button class="btn" onclick="signup()">Sign Up</button>
+            </div>
+        </div>
+
+        <!-- Dashboard -->
+        <div class="dashboard" id="dashboard">
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="switchDashboardTab('overview')">Dashboard</button>
+                <button class="nav-tab" onclick="switchDashboardTab('leaderboard')">Leaderboard</button>
+            </div>
+
+            <!-- Overview Tab -->
+            <div class="tab-content active" id="overviewTab">
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <h3>👋 Welcome Back!</h3>
+                        <p>Name: <strong id="userName">Loading...</strong></p>
+                        <div class="referral-code" id="referralCode">Loading...</div>
+                        <p style="text-align: center; color: rgba(255,255,255,0.7); font-size: 0.9rem;">Share this code to earn rewards!</p>
+                    </div>
+
+                    <div class="card">
+                        <h3>💰 Total Donations Raised</h3>
+                        <div class="stat-number" id="totalDonations">$0</div>
+                        <p style="color: rgba(255,255,255,0.7);">Keep up the great work!</p>
+                    </div>
+
+                    <div class="card">
+                        <h3>📊 This Month</h3>
+                        <div class="stat-number" style="font-size: 2rem;" id="monthlyDonations">$0</div>
+                        <p style="color: rgba(255,255,255,0.7);">Monthly progress</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🎁 Rewards & Unlockables</h3>
+                    <p style="margin-bottom: 20px; color: rgba(255,255,255,0.7);">Unlock amazing rewards as you raise more donations!</p>
+                    <div class="rewards-grid" id="rewardsGrid">
+                        <!-- Rewards will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leaderboard Tab -->
+            <div class="tab-content" id="leaderboardTab">
+                <div class="card">
+                    <h3>🏆 Top Performers</h3>
+                    <p style="margin-bottom: 20px; color: rgba(255,255,255,0.7);">See how you stack up against other interns!</p>
+                    <div id="leaderboardList">
+                        <!-- Leaderboard will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mock Backend API Data
+        const mockAPI = {
+            users: [
+                {
+                    id: 1,
+                    name: "John Doe",
+                    email: "john.doe@example.com",
+                    referralCode: "JOHNDOE2025",
+                    totalDonations: 15750,
+                    monthlyDonations: 3250
+                },
+                {
+                    id: 2,
+                    name: "Sarah Smith",
+                    email: "sarah.smith@example.com",
+                    referralCode: "SARAH2025",
+                    totalDonations: 22100,
+                    monthlyDonations: 4800
+                },
+                {
+                    id: 3,
+                    name: "Mike Johnson",
+                    email: "mike.j@example.com",
+                    referralCode: "MIKEJ2025",
+                    totalDonations: 18900,
+                    monthlyDonations: 2100
+                }
+            ],
+            rewards: [
+                { name: "Welcome Badge", threshold: 0, unlocked: true, icon: "🎖️" },
+                { name: "First $1K", threshold: 1000, unlocked: true, icon: "💵" },
+                { name: "Team Player", threshold: 5000, unlocked: true, icon: "🤝" },
+                { name: "High Achiever", threshold: 10000, unlocked: true, icon: "🏅" },
+                { name: "Superstar", threshold: 20000, unlocked: false, icon: "⭐" },
+                { name: "Legend", threshold: 50000, unlocked: false, icon: "👑" }
+            ]
+        };
+
+        let currentUser = null;
+
+        // Authentication Functions
+        function switchTab(tab) {
+            const tabs = document.querySelectorAll('.tab');
+            const loginForm = document.getElementById('loginForm');
+            const signupForm = document.getElementById('signupForm');
+
+            tabs.forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (tab === 'login') {
+                loginForm.style.display = 'block';
+                signupForm.style.display = 'none';
+            } else {
+                loginForm.style.display = 'none';
+                signupForm.style.display = 'block';
+            }
+        }
+
+        function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            // Mock authentication - in real app, this would be an API call
+            const user = mockAPI.users.find(u => u.email === email);
+            
+            if (user && password) {
+                currentUser = user;
+                showDashboard();
+                loadUserData();
+            } else {
+                alert('Invalid credentials. Try: john.doe@example.com / password123');
+            }
+        }
+
+        function signup() {
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+
+            if (name && email && password) {
+                // Mock user creation
+                const newUser = {
+                    id: mockAPI.users.length + 1,
+                    name: name,
+                    email: email,
+                    referralCode: name.toUpperCase().replace(/\s+/g, '') + '2025',
+                    totalDonations: 0,
+                    monthlyDonations: 0
+                };
+                
+                mockAPI.users.push(newUser);
+                currentUser = newUser;
+                showDashboard();
+                loadUserData();
+            } else {
+                alert('Please fill in all fields');
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('authContainer').style.display = 'block';
+            document.getElementById('dashboard').classList.remove('active');
+            document.getElementById('logoutBtn').style.display = 'none';
+        }
+
+        function showDashboard() {
+            document.getElementById('authContainer').style.display = 'none';
+            document.getElementById('dashboard').classList.add('active');
+            document.getElementById('logoutBtn').style.display = 'block';
+        }
+
+        // Dashboard Functions
+        function switchDashboardTab(tab) {
+            const tabs = document.querySelectorAll('.nav-tab');
+            const contents = document.querySelectorAll('.tab-content');
+
+            tabs.forEach(t => t.classList.remove('active'));
+            contents.forEach(c => c.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById(tab + 'Tab').classList.add('active');
+
+            if (tab === 'leaderboard') {
+                loadLeaderboard();
+            }
+        }
+
+        function loadUserData() {
+            if (!currentUser) return;
+
+            // Update user info
+            document.getElementById('userName').textContent = currentUser.name;
+            document.getElementById('referralCode').textContent = currentUser.referralCode;
+            document.getElementById('totalDonations').textContent = '$' + currentUser.totalDonations.toLocaleString();
+            document.getElementById('monthlyDonations').textContent = '$' + currentUser.monthlyDonations.toLocaleString();
+
+            // Load rewards
+            loadRewards();
+        }
+
+        function loadRewards() {
+            const rewardsGrid = document.getElementById('rewardsGrid');
+            rewardsGrid.innerHTML = '';
+
+            mockAPI.rewards.forEach(reward => {
+                const isUnlocked = currentUser.totalDonations >= reward.threshold;
+                const rewardElement = document.createElement('div');
+                rewardElement.className = `reward-item ${isUnlocked ? '' : 'locked'}`;
+                rewardElement.innerHTML = `
+                    <div style="font-size: 2rem; margin-bottom: 10px;">${reward.icon}</div>
+                    <div style="font-weight: bold; margin-bottom: 5px;">${reward.name}</div>
+                    <div style="font-size: 0.8rem;">$${reward.threshold.toLocaleString()}</div>
+                    ${isUnlocked ? '<div style="font-size: 0.7rem; margin-top: 5px;">✅ UNLOCKED</div>' : '<div style="font-size: 0.7rem; margin-top: 5px;">🔒 LOCKED</div>'}
+                `;
+                rewardsGrid.appendChild(rewardElement);
+            });
+        }
+
+        function loadLeaderboard() {
+            const leaderboardList = document.getElementById('leaderboardList');
+            leaderboardList.innerHTML = '';
+
+            // Sort users by total donations
+            const sortedUsers = [...mockAPI.users].sort((a, b) => b.totalDonations - a.totalDonations);
+
+            sortedUsers.forEach((user, index) => {
+                const isCurrentUser = currentUser && user.id === currentUser.id;
+                const leaderboardItem = document.createElement('div');
+                leaderboardItem.className = 'leaderboard-item';
+                leaderboardItem.style.background = isCurrentUser ? 'rgba(100, 255, 218, 0.1)' : 'rgba(30, 30, 30, 0.8)';
+                leaderboardItem.innerHTML = `
+                    <div>
+                        <span class="rank">#${index + 1}</span>
+                        <strong style="margin-left: 15px;">${user.name}</strong>
+                        ${isCurrentUser ? '<span style="color: #64ffda; margin-left: 10px;">(You)</span>' : ''}
+                    </div>
+                    <div>
+                        <strong>$${user.totalDonations.toLocaleString()}</strong>
+                    </div>
+                `;
+                leaderboardList.appendChild(leaderboardItem);
+            });
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-populate login form for demo
+            console.log('Intern Portal loaded successfully!');
+            console.log('Demo credentials: john.doe@example.com / password123');
+            
+            // Create floating particles
+            createParticles();
+        });
+
+        // Create floating particles animation
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 15;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 8 + 's';
+                particle.style.animationDuration = (8 + Math.random() * 4) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+    </script>
+</body>
+</html>
