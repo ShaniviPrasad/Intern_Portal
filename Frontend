@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intern Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.4) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.4) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.4) 0%, transparent 50%),
+                linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%);
+            min-height: 100vh;
+            color: #fff;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        /* Authentication Section */
+        .auth-container {
+            background: rgba(20, 20, 20, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 400px;
+            margin: 0 auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 30px;
+            background: rgba(40, 40, 40, 0.5);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: transparent;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            background: rgba(100, 255, 218, 0.2);
+            color: #64ffda;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(30, 30, 30, 0.8);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #64ffda;
+        }
+
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #64ffda, #00bcd4);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Dashboard Section */
+        .dashboard {
+            display: none;
+        }
+
+        .dashboard.active {
+            display: block;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(20, 20, 20, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .card h3 {
+            color: #64ffda;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .user-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .referral-code {
+            background: rgba(30, 30, 30, 0.8);
+            padding: 12px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            text-align: center;
+            border: 2px dashed #64ffda;
+            color: #64ffda;
+            margin-top: 10px;
+        }
+
+        .donation-amount {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #64ffda;
+            margin: 10px 0;
+        }
+
+        .rewards-section {
+            grid-column: 1 / -1;
+        }
+
+        .rewards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .reward-item {
+            background: linear-gradient(135deg, #64ffda, #00bcd4);
+            color: #000;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .reward-item.locked {
+            background: rgba(60, 60, 60, 0.8);
+            color: #888;
+        }
+
+        .reward-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(100, 255, 218, 0.2);
+            border-color: #64ffda;
+            color: #64ffda;
+        }
+
+        @media (max-width: 600px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💼 Intern Portal</h1>
+            <p>Your gateway to tracking progress and rewards</p>
+        </div>
+
+        <button class="logout-btn" onclick="logout()" style="display: none;" id="logoutBtn">Logout</button>
+
+        <!-- Login/Signup Section -->
+        <div class="auth-container" id="authContainer">
+            <div class="auth-tabs">
+                <button class="tab-btn active" onclick="switchTab('login')">Login</button>
+                <button class="tab-btn" onclick="switchTab('signup')">Sign Up</button>
+            </div>
+
+            <!-- Login Form -->
+            <div id="loginForm">
+                <h2 style="text-align: center; margin-bottom: 25px; color: #64ffda;">Welcome Back!</h2>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" placeholder="Enter your email" value="alex.smith@company.com">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" placeholder="Enter your password" value="password123">
+                </div>
+                <button class="btn" onclick="login()">Login to Dashboard</button>
+            </div>
+
+            <!-- Signup Form -->
+            <div id="signupForm" style="display: none;">
+                <h2 style="text-align: center; margin-bottom: 25px; color: #64ffda;">Join the Team!</h2>
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="signupName" placeholder="Enter your full name">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="signupEmail" placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="signupPassword" placeholder="Create a password">
+                </div>
+                <button class="btn" onclick="signup()">Create Account</button>
+            </div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div class="dashboard" id="dashboard">
+            <div class="dashboard-grid">
+                <!-- Intern Name & Referral Code -->
+                <div class="card">
+                    <h3>👋 Intern Profile</h3>
+                    <div class="user-name" id="userName">Alex Smith</div>
+                    <p style="color: rgba(255,255,255,0.7);">Your Referral Code:</p>
+                    <div class="referral-code" id="referralCode">ALEXSMITH2025</div>
+                </div>
+
+                <!-- Total Donations -->
+                <div class="card">
+                    <h3>💰 Total Donations Raised</h3>
+                    <div class="donation-amount" id="totalDonations">$12,450</div>
+                    <p style="color: rgba(255,255,255,0.7);">Great work this month!</p>
+                </div>
+
+                <!-- Rewards Section -->
+                <div class="card rewards-section">
+                    <h3>🎁 Rewards & Unlockables</h3>
+                    <p style="color: rgba(255,255,255,0.7); margin-bottom: 20px;">Unlock rewards based on your donation milestones!</p>
+                    
+                    <div class="rewards-grid">
+                        <div class="reward-item">
+                            <span class="reward-icon">🎖️</span>
+                            <div>Welcome Badge</div>
+                            <small>$0 raised</small>
+                        </div>
+                        <div class="reward-item">
+                            <span class="reward-icon">💵</span>
+                            <div>First $1K</div>
+                            <small>$1,000 raised</small>
+                        </div>
+                        <div class="reward-item">
+                            <span class="reward-icon">🏅</span>
+                            <div>High Achiever</div>
+                            <small>$10,000 raised</small>
+                        </div>
+                        <div class="reward-item locked">
+                            <span class="reward-icon">⭐</span>
+                            <div>Superstar</div>
+                            <small>$20,000 needed</small>
+                        </div>
+                        <div class="reward-item locked">
+                            <span class="reward-icon">👑</span>
+                            <div>Legend</div>
+                            <small>$50,000 needed</small>
+                        </div>
+                        <div class="reward-item locked">
+                            <span class="reward-icon">🚀</span>
+                            <div>Ultimate</div>
+                            <small>$100,000 needed</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mock Backend Data (simulating REST API response)
+       // const mockBackendData = {
+        //    user: {
+          //      name: "Alex Smith",
+          //      email: "alex.smith@company.com",
+            //    referralCode: "ALEXSMITH2025",
+              //  totalDonations: 12450
+           // },
+            
+            // Simulated API endpoint: GET /api/user/donations
+            getDonationsData: function() {
+                return {
+                    total: this.user.totalDonations,
+                    currency: "USD"
+                };
+            },
+
+            // Simulated API endpoint: GET /api/user/profile  
+            getUserProfile: function() {
+                return {
+                    name: this.user.name,
+                    referralCode: this.user.referralCode
+                };
+            }
+        };
+
+        // Authentication Functions
+        function switchTab(tab) {
+            const tabs = document.querySelectorAll('.tab-btn');
+            const loginForm = document.getElementById('loginForm');
+            const signupForm = document.getElementById('signupForm');
+
+            tabs.forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (tab === 'login') {
+                loginForm.style.display = 'block';
+                signupForm.style.display = 'none';
+            } else {
+                loginForm.style.display = 'none';
+                signupForm.style.display = 'block';
+            }
+        }
+
+        function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            // Dummy authentication - just check if fields are filled
+            if (email && password) {
+                showDashboard();
+                loadDashboardData();
+            } else {
+                alert('Please enter email and password');
+            }
+        }
+
+        function signup() {
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+
+            if (name && email && password) {
+                // Update mock data with new user
+                mockBackendData.user.name = name;
+                mockBackendData.user.referralCode = name.toUpperCase().replace(/\s+/g, '') + '2025';
+                
+                showDashboard();
+                loadDashboardData();
+            } else {
+                alert('Please fill in all fields');
+            }
+        }
+
+        function logout() {
+            document.getElementById('authContainer').style.display = 'block';
+            document.getElementById('dashboard').classList.remove('active');
+            document.getElementById('logoutBtn').style.display = 'none';
+        }
+
+        function showDashboard() {
+            document.getElementById('authContainer').style.display = 'none';
+            document.getElementById('dashboard').classList.add('active');
+            document.getElementById('logoutBtn').style.display = 'block';
+        }
+
+        // Dashboard Data Loading (simulating backend API calls)
+        function loadDashboardData() {
+            // Simulate API call: GET /api/user/profile
+            const userProfile = mockBackendData.getUserProfile();
+            document.getElementById('userName').textContent = userProfile.name;
+            document.getElementById('referralCode').textContent = userProfile.referralCode;
+
+            // Simulate API call: GET /api/user/donations  
+            const donationsData = mockBackendData.getDonationsData();
+            document.getElementById('totalDonations').textContent = '$' + donationsData.total.toLocaleString();
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Intern Portal loaded successfully!');
+            console.log('Demo login: alex.smith@company.com / password123');
+        });
+    </script>
+</body>
+</html>
